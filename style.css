@@ -1,5 +1,13 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* empèche les barres de défilement */
+  background-color: rgb(198, 34, 34); /* optionnel */
+}
+
+/* Style,position pour le canvas */
 canvas {
-        background: #eee;
-        display: block;
-        margin: 0 auto;
+  background: #eee;
+  display: block;
+  margin-top: 5%;
 }
