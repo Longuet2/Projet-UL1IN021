@@ -1,0 +1,25 @@
+body {
+    background-color: black;
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center;     
+    height: 100vh;          
+    margin: 0;
+}
+
+.title {
+    font-size: 3em;
+    color: white;
+}
+
+.start {
+    font-size: 1.5em;
+    color: white;
+    animation: colorblink 1s infinite;
+}
+
+@keyframes colorblink { 
+    0% { }
+    50% { color:green; } 
+}
