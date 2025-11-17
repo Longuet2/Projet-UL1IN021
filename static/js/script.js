@@ -43,7 +43,7 @@ var downPressed = false;
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "#0095DD";
+  ctx.fillStyle = "#ffffffff";
   ctx.fill();
   ctx.closePath();
 }
@@ -52,7 +52,7 @@ function drawBall() {
 function drawPaddle1() {
   ctx.beginPath();
   ctx.rect(paddleX1, paddleY1, paddleWidth, paddleHeight);
-  ctx.fillStyle = "#0095DD";
+  ctx.fillStyle = "#ffffffff";
   ctx.fill();
   ctx.closePath();
 }
@@ -61,7 +61,7 @@ function drawPaddle1() {
 function drawPaddle2() {
   ctx.beginPath();
   ctx.rect(paddleX2, paddleY2, paddleWidth, paddleHeight);
-  ctx.fillStyle = "#39b885ff";
+  ctx.fillStyle = "#ffffffff";
   ctx.fill();
   ctx.closePath();
 }
@@ -86,7 +86,7 @@ function draw() {
   }
 
   // Collision paddles
-  if (x + dx > canvas.width - ballRadius) {
+  if (x + dx >= canvas.width - ballRadius) {
     if (y >= paddleY2 && y <= paddleY2 + paddleHeight) {
       dx = -dx;
       dx *= 1.05; // accélération progressive
@@ -96,7 +96,7 @@ function draw() {
       document.location.reload();
       return;
     }
-  } else if (x + dx < ballRadius) {
+  } else if (x + dx <= ballRadius) {
     if (y >= paddleY1 && y <= paddleY1 + paddleHeight) {
       dx = -dx;
       dx *= 1.05;
