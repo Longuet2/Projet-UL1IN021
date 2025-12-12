@@ -9,9 +9,6 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 import uvicorn
 
-# -------------------------------
-# FastAPI
-# -------------------------------
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -30,31 +27,61 @@ def pong(request: Request):
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     websockets.add(ws)
+
     try:
         while True:
-            await asyncio.sleep(1)
+            msg = await ws.receive_text()
+            await handle_client_message(msg)
+
     except:
         pass
+
     finally:
-        websockets.remove(ws)
+        if ws in websockets:
+            websockets.remove(ws)
 
 # -------------------------------
 # GPIO
 # -------------------------------
 
-BUTTONS = {
-    5:  "BTN_1",  # pad gauche monte
-    16: "BTN_2",  # pad gauche descend
-    24: "BTN_3",  # pad droite monte
-    22: "BTN_4"   # pad droite descend
-}
+BUTTONS = {5:"BTN_1", 16:"BTN_2", 24:"BTN_3", 22:"BTN_4"}
+BUZZER_PIN = 26
 
 GPIO.setmode(GPIO.BCM)
 for pin in BUTTONS:
     GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+GPIO.output(BUZZER_PIN, GPIO.LOW)
 
 # -------------------------------
-# Broadcast WebSocket
+# Buzzer functions
+# -------------------------------
+
+def buzzer_beep(duration=0.1):
+    GPIO.output(BUZZER_PIN, GPIO.HIGH)
+    time.sleep(duration)
+    GPIO.output(BUZZER_PIN, GPIO.LOW)
+
+def buzzer_bounce():
+    buzzer_beep(0.05)
+
+def buzzer_goal():
+    buzzer_beep(0.1)
+    time.sleep(0.05)
+    buzzer_beep(0.1)
+
+# -------------------------------
+# Réception message du client
+# -------------------------------
+
+async def handle_client_message(msg: str):
+    if msg == "sound_bounce":
+        threading.Thread(target=buzzer_bounce, daemon=True).start()
+    elif msg == "sound_goal":
+        threading.Thread(target=buzzer_goal, daemon=True).start()
+
+# -------------------------------
+# Broadcast WebSockets
 # -------------------------------
 
 async def broadcast_message(msg: str):
@@ -65,7 +92,8 @@ async def broadcast_message(msg: str):
         except:
             dead.append(ws)
     for ws in dead:
-        websockets.remove(ws)
+        if ws in websockets:
+            websockets.remove(ws)
 
 # -------------------------------
 # Thread de surveillance GPIO
@@ -73,38 +101,27 @@ async def broadcast_message(msg: str):
 
 def button_watcher(loop):
     last_state = {pin: 1 for pin in BUTTONS}
-
     while True:
         for pin, name in BUTTONS.items():
             state = GPIO.input(pin)
-
             if state == 0 and last_state[pin] == 1:
-                asyncio.run_coroutine_threadsafe(
-                    broadcast_message(f"{name}_pressed"),
-                    loop
-                )
+                asyncio.run_coroutine_threadsafe(broadcast_message(f"{name}_pressed"), loop)
             elif state == 1 and last_state[pin] == 0:
-                asyncio.run_coroutine_threadsafe(
-                    broadcast_message(f"{name}_released"),
-                    loop
-                )
-
+                asyncio.run_coroutine_threadsafe(broadcast_message(f"{name}_released"), loop)
             last_state[pin] = state
-
         time.sleep(0.03)
 
 # -------------------------------
-# D�marrage du watcher au startup
+# Startup
 # -------------------------------
 
 @app.on_event("startup")
 async def startup_event():
     loop = asyncio.get_running_loop()
-    thread = threading.Thread(target=button_watcher, args=(loop,), daemon=True)
-    thread.start()
+    threading.Thread(target=button_watcher, args=(loop,), daemon=True).start()
 
 # -------------------------------
-# Lancement serveur
+# Launch
 # -------------------------------
 
 if __name__ == "__main__":
