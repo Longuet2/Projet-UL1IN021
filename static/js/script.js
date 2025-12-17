@@ -9,6 +9,9 @@ var joueur2 = localStorage.getItem('joueur2') || 'Joueur 2';
 document.getElementById("player1Name").textContent = joueur1;
 document.getElementById("player2Name").textContent = joueur2;
 
+let paused = false;
+const PAUSE_TIME = 1000; // 1 seconde
+
 // Dimensions et positions
 var paddleWidth, paddleHeight, ballRadius;
 var paddleSpeed = 8;
@@ -93,18 +96,38 @@ function clampPaddles() {
     paddleY2 = Math.max(0, Math.min(paddleY2, canvas.height - paddleHeight));
 }
 
+var score_1 = 0;
+var score_2 = 0;
+
 // --- Fin de partie ---
 function gameOver() {
     cancelAnimationFrame(animationId);
+    document.getElementById("score1").title = score_1
+    document.getElementById("score2").textContent = score_2
     document.getElementById("gameOverOverlay").style.display = "block";
 }
 
+
+function pauseAfterGoal() {
+    paused = true;
+
+    // stoppe le mouvement
+    dx = 0;
+    dy = 0;
+
+    setTimeout(() => {
+        resetBall();
+        paused = false;
+    }, PAUSE_TIME);
+}
+
 // --- Boucle de jeu ---
-function draw() {
+function draw() {         
     animationId = requestAnimationFrame(draw);
-
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
+    document.getElementById("score1").textContent = score_1
+    document.getElementById("score2").textContent = score_2
+    
     drawBall();
     drawPaddle1();
     drawPaddle2();
@@ -112,6 +135,12 @@ function draw() {
     x += dx;
     y += dy;
 
+    if (paused) {
+    drawBall();
+    drawPaddle1();
+    drawPaddle2();
+    return;
+}
     // Collisions haut/bas
     if (y - ballRadius <= 0 || y + ballRadius >= canvas.height) dy = -dy;
 
@@ -123,10 +152,14 @@ function draw() {
             ws.send("sound_bounce");
         } else {
             ws.send("sound_goal");
-            gameOver();
+            score_1 ++;
+            pauseAfterGoal();
             return;
+            }
+            
         }
-    }
+        
+    
 
     // Collision paddle gauche
     if (x - ballRadius <= paddleX1 + paddleWidth) {
@@ -136,10 +169,12 @@ function draw() {
             ws.send("sound_bounce");
         } else {
             ws.send("sound_goal");
-            gameOver();
+            score_2 ++ ;
+            pauseAfterGoal();
             return;
         }
     }
+
 
     // Déplacement paddles
     if (up1) paddleY1 -= paddleSpeed;
@@ -153,7 +188,14 @@ function draw() {
     if (downPressed2) paddleY2 += paddleSpeed;
 
     clampPaddles();
+
+    if (score_1 === 2 || score_2 === 2) {
+    gameOver();
+    return;
 }
+    }
+
+
 
 // --- Clavier ---
 document.addEventListener("keydown", e => {
@@ -183,4 +225,5 @@ document.getElementById("quitBtn").addEventListener("click", () => {
 });
 
 // --- Start ---
-draw();
+    draw()
+
