@@ -1,16 +1,16 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
-// Noms des joueurs depuis la page d'accueil
+// Noms des joueurs
 var joueur1 = localStorage.getItem('joueur1') || 'Joueur 1';
 var joueur2 = localStorage.getItem('joueur2') || 'Joueur 2';
 
-// Mettre à jour le scoreboard
 document.getElementById("player1Name").textContent = joueur1;
 document.getElementById("player2Name").textContent = joueur2;
 
 let paused = false;
-const PAUSE_TIME = 1000; // 1 seconde
+const PAUSE_TIME = 1000;
+const MIN_SPEED = 7;
 
 // Dimensions et positions
 var paddleWidth, paddleHeight, ballRadius;
@@ -34,14 +34,14 @@ function resizeCanvas() {
     const scoreboardHeight = document.getElementById('scoreboard').offsetHeight;
 
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - scoreboardHeight; 
+    canvas.height = window.innerHeight - scoreboardHeight;
 
     paddleWidth = canvas.width * 0.011;
     paddleHeight = canvas.height * 0.12;
     ballRadius = canvas.width * 0.01;
 
-    paddleY1 = (canvas.height - paddleHeight)/2;
-    paddleY2 = (canvas.height - paddleHeight)/2;
+    paddleY1 = (canvas.height - paddleHeight) / 2;
+    paddleY2 = (canvas.height - paddleHeight) / 2;
     paddleX2 = canvas.width - paddleWidth;
 
     resetBall();
@@ -54,9 +54,12 @@ window.addEventListener("resize", resizeCanvas);
 function resetBall() {
     x = canvas.width / 2;
     y = canvas.height / 2;
-    let speed = 5;
-    dx = Math.random() < 0.5 ? speed : -speed;
-    dy = Math.floor(Math.random() * (speed * 2 + 1)) - speed; 
+
+    dx = Math.random() < 0.5 ? MIN_SPEED : -MIN_SPEED;
+
+    do {
+        dy = Math.floor(Math.random() * (MIN_SPEED * 2 + 1)) - MIN_SPEED;
+    } while (dy === 0 || Math.abs(dy) < 2);
 }
 
 // --- WebSocket ---
@@ -75,7 +78,7 @@ ws.onmessage = function(event) {
 // --- Dessins ---
 function drawBall() {
     ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
     ctx.fillStyle = "#ffffff";
     ctx.fill();
 }
@@ -99,19 +102,37 @@ function clampPaddles() {
 var score_1 = 0;
 var score_2 = 0;
 
+// --- Sauvegarde ---
+async function saveGameToDatabase() {
+    try {
+        await fetch('/api/games', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                player1_name: joueur1,
+                player2_name: joueur2,
+                player1_score: score_1,
+                player2_score: score_2
+            })
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 // --- Fin de partie ---
 function gameOver() {
     cancelAnimationFrame(animationId);
-    document.getElementById("score1").title = score_1
-    document.getElementById("score2").textContent = score_2
+    saveGameToDatabase();
+
+    document.querySelectorAll("#gameOverOverlay #score1, #gameOverOverlay #score2")[0].textContent = score_1;
+    document.querySelectorAll("#gameOverOverlay #score1, #gameOverOverlay #score2")[1].textContent = score_2;
+
     document.getElementById("gameOverOverlay").style.display = "block";
 }
 
-
 function pauseAfterGoal() {
     paused = true;
-
-    // stoppe le mouvement
     dx = 0;
     dy = 0;
 
@@ -122,61 +143,55 @@ function pauseAfterGoal() {
 }
 
 // --- Boucle de jeu ---
-function draw() {         
+function draw() {
     animationId = requestAnimationFrame(draw);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    document.getElementById("score1").textContent = score_1
-    document.getElementById("score2").textContent = score_2
-    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    document.getElementById("score1").textContent = score_1;
+    document.getElementById("score2").textContent = score_2;
+
     drawBall();
     drawPaddle1();
     drawPaddle2();
+
+    if (paused) return;
 
     x += dx;
     y += dy;
 
-    if (paused) {
-    drawBall();
-    drawPaddle1();
-    drawPaddle2();
-    return;
-}
-    // Collisions haut/bas
+    // murs haut / bas
     if (y - ballRadius <= 0 || y + ballRadius >= canvas.height) dy = -dy;
 
-    // Collision paddle droite
+    // paddle droite
     if (x + ballRadius >= paddleX2) {
         if (y >= paddleY2 && y <= paddleY2 + paddleHeight) {
             dx = -dx * 1.05;
             dy *= 1.05;
+            if (Math.abs(dx) < MIN_SPEED) dx = Math.sign(dx || 1) * MIN_SPEED;
+            if (Math.abs(dy) < 2) dy = Math.sign(dy || 1) * 2;
             ws.send("sound_bounce");
         } else {
             ws.send("sound_goal");
-            score_1 ++;
+            score_1++;
             pauseAfterGoal();
-            return;
-            }
-            
         }
-        
-    
+    }
 
-    // Collision paddle gauche
+    // paddle gauche
     if (x - ballRadius <= paddleX1 + paddleWidth) {
         if (y >= paddleY1 && y <= paddleY1 + paddleHeight) {
             dx = -dx * 1.05;
             dy *= 1.05;
+            if (Math.abs(dx) < MIN_SPEED) dx = Math.sign(dx || 1) * MIN_SPEED;
+            if (Math.abs(dy) < 2) dy = Math.sign(dy || 1) * 2;
             ws.send("sound_bounce");
         } else {
             ws.send("sound_goal");
-            score_2 ++ ;
+            score_2++;
             pauseAfterGoal();
-            return;
         }
     }
 
-
-    // Déplacement paddles
     if (up1) paddleY1 -= paddleSpeed;
     if (down1) paddleY1 += paddleSpeed;
     if (up2) paddleY2 -= paddleSpeed;
@@ -189,13 +204,8 @@ function draw() {
 
     clampPaddles();
 
-    if (score_1 === 2 || score_2 === 2) {
-    gameOver();
-    return;
+    if (score_1 === 5 || score_2 === 5) gameOver();
 }
-    }
-
-
 
 // --- Clavier ---
 document.addEventListener("keydown", e => {
@@ -211,13 +221,13 @@ document.addEventListener("keyup", e => {
     if (e.key === "ArrowDown") downPressed2 = false;
 });
 
-// --- Boutons Rejouer / Quitter ---
+// --- Boutons ---
 document.getElementById("replayBtn").addEventListener("click", () => {
     document.getElementById("gameOverOverlay").style.display = "none";
-    paddleY1 = (canvas.height - paddleHeight)/2;
-    paddleY2 = (canvas.height - paddleHeight)/2;
+    score_1 = 0;
+    score_2 = 0;
+    paddleY1 = paddleY2 = (canvas.height - paddleHeight) / 2;
     resetBall();
-    draw();
 });
 
 document.getElementById("quitBtn").addEventListener("click", () => {
@@ -225,5 +235,5 @@ document.getElementById("quitBtn").addEventListener("click", () => {
 });
 
 // --- Start ---
-    draw()
+draw();
 
