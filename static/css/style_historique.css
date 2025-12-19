@@ -1,3 +1,4 @@
+/* Style général de la page */
 body {
     margin: 0;
     padding: 0;
@@ -7,12 +8,14 @@ body {
     min-height: 100vh;
 }
 
+/* Conteneur principal centré */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
+/* Titre principal */
 h1 {
     text-align: center;
     font-size: 3em;
@@ -21,6 +24,7 @@ h1 {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
+/* Résumé des statistiques */
 .stats-summary {
     display: flex;
     justify-content: center;
@@ -28,6 +32,7 @@ h1 {
     margin-bottom: 40px;
 }
 
+/* Carte de statistique */
 .stat-card {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -37,12 +42,14 @@ h1 {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Titre des cartes de statistiques */
 .stat-card h3 {
     margin: 0 0 10px 0;
     font-size: 1.2em;
     color: #aaa;
 }
 
+/* Valeur affichée dans les statistiques */
 .stat-card p {
     margin: 0;
     font-size: 2.5em;
@@ -50,6 +57,7 @@ h1 {
     color: #4CAF50;
 }
 
+/* Conteneur du tableau */
 .games-table-container {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
@@ -59,15 +67,18 @@ h1 {
     overflow-x: auto;
 }
 
+/* Tableau des parties */
 .games-table {
     width: 100%;
     border-collapse: collapse;
 }
 
+/* En-tête du tableau */
 .games-table thead {
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* Cellules d’en-tête */
 .games-table th {
     padding: 15px;
     text-align: center;
@@ -78,61 +89,75 @@ h1 {
     color: #4CAF50;
 }
 
+/* Cellules du tableau */
 .games-table td {
     padding: 15px;
     text-align: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Ligne du tableau */
 .games-table tbody tr {
     transition: background 0.3s ease;
 }
 
+/* Effet au survol d’une ligne */
 .games-table tbody tr:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
+/* Mise en valeur du gagnant */
 .winner {
     font-weight: bold;
     color: #4CAF50;
 }
 
+/* Style des scores */
 .score {
     font-size: 1.3em;
     font-weight: bold;
 }
 
+/* Séparateur VS */
 .vs {
     color: #888;
     font-weight: bold;
 }
 
+/* Cellule affichant le gagnant */
 .winner-cell {
     color: #FFD700;
     font-weight: bold;
 }
 
+/* Date de la partie */
 .date {
     color: #aaa;
     font-size: 0.9em;
 }
 
-.loading, .no-games, .error {
+/* États de chargement et messages */
+.loading,
+.no-games,
+.error {
     text-align: center;
     padding: 40px;
     color: #888;
     font-style: italic;
 }
 
+/* Message d’erreur */
 .error {
     color: #ff4444;
 }
 
+/* Conteneur du bouton retour */
 .back-button-container {
     text-align: center;
     margin-top: 40px;
 }
 
+/* Bouton retour */
 .back-button {
     background: rgba(255, 255, 255, 0.1);
     color: white;
@@ -145,6 +170,7 @@ h1 {
     backdrop-filter: blur(10px);
 }
 
+/* Effet au survol du bouton */
 .back-button:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: #4CAF50;
@@ -152,11 +178,12 @@ h1 {
     box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
 }
 
+/* Effet lors du clic */
 .back-button:active {
     transform: translateY(0);
 }
 
-/* Responsive */
+/* Adaptation pour écrans plus petits */
 @media (max-width: 768px) {
     h1 {
         font-size: 2em;
