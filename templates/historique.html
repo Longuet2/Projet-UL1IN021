@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <!-- Encodage des caractères -->
   <meta charset="utf-8">
+
+  <!-- Titre de la page -->
   <title>Historique des Parties - Pong</title>
+
+  <!-- Feuille de style dédiée à l'historique -->
   <link rel="stylesheet" href="{{ url_for('static', path='css/style_historique.css') }}">
 </head>
 <body>
+  <!-- Conteneur principal de la page -->
   <div class="container">
-    <h1>📊 Historique des Parties</h1>
+    <h1>Historique des Parties</h1>
     
+    <!-- Résumé des statistiques -->
     <div class="stats-summary" id="statsSummary">
       <div class="stat-card">
         <h3>Total de parties</h3>
@@ -16,6 +23,7 @@
       </div>
     </div>
 
+    <!-- Tableau affichant l’historique des parties -->
     <div class="games-table-container">
       <table class="games-table">
         <thead>
@@ -31,6 +39,7 @@
           </tr>
         </thead>
         <tbody id="gamesTableBody">
+          <!-- Contenu remplacé dynamiquement par JavaScript -->
           <tr>
             <td colspan="8" class="loading">Chargement...</td>
           </tr>
@@ -38,6 +47,7 @@
       </table>
     </div>
 
+    <!-- Bouton de retour à la page d'accueil -->
     <div class="back-button-container">
       <button onclick="window.location.href='/'" class="back-button">
         ← Retour à l'accueil
@@ -46,7 +56,7 @@
   </div>
 
   <script>
-    // Charger l'historique au chargement de la page
+    // Charge l’historique des parties depuis l’API
     async function loadHistory() {
       try {
         const response = await fetch('/api/games');
@@ -55,15 +65,17 @@
         const tbody = document.getElementById('gamesTableBody');
         const totalGamesElement = document.getElementById('totalGames');
         
-        // Mettre à jour le total
+        // Mise à jour du nombre total de parties
         totalGamesElement.textContent = games.length;
         
+        // Cas où aucune partie n’est enregistrée
         if (games.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="no-games">Aucune partie jouée pour le moment</td></tr>';
+          tbody.innerHTML =
+            '<tr><td colspan="8" class="no-games">Aucune partie jouée pour le moment</td></tr>';
           return;
         }
         
-        // Créer les lignes du tableau
+        // Génération dynamique des lignes du tableau
         tbody.innerHTML = games.map((game, index) => {
           const date = new Date(game.timestamp);
           const formattedDate = date.toLocaleString('fr-FR', {
@@ -74,7 +86,7 @@
             minute: '2-digit'
           });
           
-          // Déterminer le style du gagnant
+          // Mise en évidence du joueur gagnant
           const player1Class = game.winner === game.player1_name ? 'winner' : '';
           const player2Class = game.winner === game.player2_name ? 'winner' : '';
           
@@ -86,24 +98,30 @@
               <td class="vs">VS</td>
               <td class="score ${player2Class}">${game.player2_score}</td>
               <td class="${player2Class}">${game.player2_name}</td>
-              <td class="winner-cell">🏆 ${game.winner}</td>
+              <td class="winner-cell">${game.winner}</td>
               <td class="date">${formattedDate}</td>
             </tr>
           `;
         }).join('');
         
       } catch (error) {
-        console.error('Erreur lors du chargement de l\'historique:', error);
-        document.getElementById('gamesTableBody').innerHTML = 
+        console.error(
+          'Erreur lors du chargement de l\'historique:',
+          error
+        );
+
+        // Message affiché en cas d’erreur de chargement
+        document.getElementById('gamesTableBody').innerHTML =
           '<tr><td colspan="8" class="error">Erreur lors du chargement</td></tr>';
       }
     }
     
-    // Charger au démarrage
+    // Chargement initial au démarrage de la page
     loadHistory();
     
-    // Recharger toutes les 10 secondes
+    // Rafraîchissement automatique toutes les 10 secondes
     setInterval(loadHistory, 10000);
   </script>
 </body>
 </html>
+
