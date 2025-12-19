@@ -1,35 +1,34 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
-// Noms des joueurs
+// Récupération des noms des joueurs depuis le localStorage ou valeurs par défaut
 var joueur1 = localStorage.getItem('joueur1') || 'Joueur 1';
 var joueur2 = localStorage.getItem('joueur2') || 'Joueur 2';
-
 document.getElementById("player1Name").textContent = joueur1;
 document.getElementById("player2Name").textContent = joueur2;
 
 let paused = false;
-const PAUSE_TIME = 1000;
-const MIN_SPEED = 7;
+const PAUSE_TIME = 1000; // Pause après un but en ms
+const MIN_SPEED = 7;     // Vitesse minimale de la balle
 
-// Dimensions et positions
+// Variables de dimensions et positions
 var paddleWidth, paddleHeight, ballRadius;
 var paddleSpeed = 8;
 var paddleX1 = 0, paddleY1;
 var paddleX2, paddleY2;
 var x, y, dx, dy;
 
-// Flags boutons
+// Flags pour le contrôle via boutons ou clavier
 var up1 = false, down1 = false;
 var up2 = false, down2 = false;
 var upPressed1 = false, downPressed1 = false;
 var upPressed2 = false, downPressed2 = false;
 
-// WebSocket
+// Connexion WebSocket avec le serveur
 var ws = new WebSocket(`ws://${window.location.host}/ws`);
 let animationId;
 
-// --- Redimensionnement ---
+// Ajuste la taille du canvas et des paddles en fonction de la fenêtre
 function resizeCanvas() {
     const scoreboardHeight = document.getElementById('scoreboard').offsetHeight;
 
@@ -50,11 +49,10 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// --- Initialisation balle ---
+// Initialise la balle au centre avec une direction aléatoire
 function resetBall() {
     x = canvas.width / 2;
     y = canvas.height / 2;
-
     dx = Math.random() < 0.5 ? MIN_SPEED : -MIN_SPEED;
 
     do {
@@ -62,7 +60,7 @@ function resetBall() {
     } while (dy === 0 || Math.abs(dy) < 2);
 }
 
-// --- WebSocket ---
+// Réception des messages WebSocket pour gérer les boutons physiques
 ws.onmessage = function(event) {
     const msg = event.data;
     if (msg === "BTN_2_pressed") up1 = true;
@@ -75,7 +73,7 @@ ws.onmessage = function(event) {
     if (msg === "BTN_3_released") down2 = false;
 };
 
-// --- Dessins ---
+// Dessin de la balle et des paddles
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
@@ -93,16 +91,17 @@ function drawPaddle2() {
     ctx.fillRect(paddleX2, paddleY2, paddleWidth, paddleHeight);
 }
 
-// --- Clamp ---
+// Empêche les paddles de sortir du canvas
 function clampPaddles() {
     paddleY1 = Math.max(0, Math.min(paddleY1, canvas.height - paddleHeight));
     paddleY2 = Math.max(0, Math.min(paddleY2, canvas.height - paddleHeight));
 }
 
+// Scores
 var score_1 = 0;
 var score_2 = 0;
 
-// --- Sauvegarde ---
+// Sauvegarde du score dans la base de données via API
 async function saveGameToDatabase() {
     try {
         await fetch('/api/games', {
@@ -120,7 +119,7 @@ async function saveGameToDatabase() {
     }
 }
 
-// --- Fin de partie ---
+// Affiche l'overlay de fin de partie
 function gameOver() {
     cancelAnimationFrame(animationId);
     saveGameToDatabase();
@@ -131,6 +130,7 @@ function gameOver() {
     document.getElementById("gameOverOverlay").style.display = "block";
 }
 
+// Pause après un but pour repositionner la balle
 function pauseAfterGoal() {
     paused = true;
     dx = 0;
@@ -142,11 +142,12 @@ function pauseAfterGoal() {
     }, PAUSE_TIME);
 }
 
-// --- Boucle de jeu ---
+// Boucle principale du jeu
 function draw() {
     animationId = requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Mise à jour des scores affichés
     document.getElementById("score1").textContent = score_1;
     document.getElementById("score2").textContent = score_2;
 
@@ -159,10 +160,10 @@ function draw() {
     x += dx;
     y += dy;
 
-    // murs haut / bas
+    // Collision avec les murs
     if (y - ballRadius <= 0 || y + ballRadius >= canvas.height) dy = -dy;
 
-    // paddle droite
+    // Collision avec paddle droit
     if (x + ballRadius >= paddleX2) {
         if (y >= paddleY2 - 15 && y <= paddleY2 + paddleHeight +15) {
             dx = -dx * 1.05;
@@ -177,7 +178,7 @@ function draw() {
         }
     }
 
-    // paddle gauche
+    // Collision avec paddle gauche
     if (x - ballRadius <= paddleX1 + paddleWidth) {
         if (y >= paddleY1 - 15 && y <= paddleY1 + paddleHeight + 15) {
             dx = -dx * 1.05;
@@ -192,11 +193,11 @@ function draw() {
         }
     }
 
+    // Déplacements des paddles
     if (up1) paddleY1 -= paddleSpeed;
     if (down1) paddleY1 += paddleSpeed;
     if (up2) paddleY2 -= paddleSpeed;
     if (down2) paddleY2 += paddleSpeed;
-
     if (upPressed1) paddleY1 -= paddleSpeed;
     if (downPressed1) paddleY1 += paddleSpeed;
     if (upPressed2) paddleY2 -= paddleSpeed;
@@ -204,10 +205,11 @@ function draw() {
 
     clampPaddles();
 
+    // Fin de partie si un joueur atteint 5 points
     if (score_1 === 5 || score_2 === 5) gameOver();
 }
 
-// --- Clavier ---
+// Gestion du clavier
 document.addEventListener("keydown", e => {
     if (e.key === "z") upPressed1 = true;
     if (e.key === "s") downPressed1 = true;
@@ -221,7 +223,7 @@ document.addEventListener("keyup", e => {
     if (e.key === "ArrowDown") downPressed2 = false;
 });
 
-// --- Boutons ---
+// Gestion des boutons de l'overlay
 document.getElementById("replayBtn").addEventListener("click", () => {
     document.getElementById("gameOverOverlay").style.display = "none";
     score_1 = 0;
@@ -235,6 +237,6 @@ document.getElementById("quitBtn").addEventListener("click", () => {
     window.location.href = "/";
 });
 
-// --- Start ---
+// Lancement du jeu
 draw();
 
