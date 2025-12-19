@@ -1,33 +1,49 @@
 <!DOCTYPE html>
-<html lang="fr">
 <head>
-  <!-- Encodage des caractères -->
-  <meta charset="utf-8">
+    <!-- Encodage des caractères -->
+    <meta charset="utf-8">
 
-  <!-- Titre de la page affiché dans l’onglet -->
-  <title>Accueil</title>
+    <!-- Titre de la page -->
+    <title>Pong</title>
 
-  <!-- Feuille de style spécifique à la page d’accueil -->
-  <link rel="stylesheet" href="{{ url_for('static', path='css/style_acceuil.css') }}">
+    <!-- Feuille de style du jeu -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
 
-  <!-- Script JavaScript de la page (chargé après le HTML) -->
-  <script src="{{ url_for('static', path='js/script_acceuil.js') }}?v=1" defer></script>
+    <!-- Script principal du jeu Pong -->
+    <script src="{{ url_for('static', path='js/script.js') }}?v=2" defer></script>
 </head>
 <body>
-  <!-- Titre principal du jeu -->
-  <div class="title">
-    <h1>PONG</h1>
-  </div>
 
-  <!-- Message indiquant comment démarrer la partie -->
-  <div class="start">
-    <p>Appuie sur Entrée pour commencer le jeu.</p>
-  </div>
+    <!-- Affichage des scores et des noms des joueurs -->
+    <div id="scoreboard">
+        
+        <span id="player1Name">Joueur 1</span>:
+        <span id="score1">0</span>
+        &nbsp;&nbsp;&nbsp;
+        <span id="player2Name">Joueur 2</span>:
+        <span id="score2">0</span>
+        
+    </div>
 
-  <!-- Lien vers la page d’historique des parties -->
-  <div class="history-link">
-    <a href="/historique">Voir l'historique des parties</a>
-  </div>
+    <!-- Canvas utilisé pour afficher le jeu Pong -->
+    <canvas id="myCanvas"></canvas>
+
+    <!-- Écran affiché à la fin de la partie -->
+    <div id="gameOverOverlay">
+        <h1>Fin de la partie !</h1>
+
+        <!-- Score final -->
+        <h1>
+            <span id="score1">0</span> |
+            <span id="score2">0</span>
+        </h1>
+
+        <!-- Boutons de fin de partie -->
+        <button id="replayBtn">Rejouer</button>
+        <button id="quitBtn">Quitter</button>
+    </div>
+
 </body>
 </html>
+
 
