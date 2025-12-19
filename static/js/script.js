@@ -164,7 +164,7 @@ function draw() {
 
     // paddle droite
     if (x + ballRadius >= paddleX2) {
-        if (y >= paddleY2 && y <= paddleY2 + paddleHeight) {
+        if (y >= paddleY2 - 15 && y <= paddleY2 + paddleHeight +15) {
             dx = -dx * 1.05;
             dy *= 1.05;
             if (Math.abs(dx) < MIN_SPEED) dx = Math.sign(dx || 1) * MIN_SPEED;
@@ -179,7 +179,7 @@ function draw() {
 
     // paddle gauche
     if (x - ballRadius <= paddleX1 + paddleWidth) {
-        if (y >= paddleY1 && y <= paddleY1 + paddleHeight) {
+        if (y >= paddleY1 - 15 && y <= paddleY1 + paddleHeight + 15) {
             dx = -dx * 1.05;
             dy *= 1.05;
             if (Math.abs(dx) < MIN_SPEED) dx = Math.sign(dx || 1) * MIN_SPEED;
@@ -228,6 +228,7 @@ document.getElementById("replayBtn").addEventListener("click", () => {
     score_2 = 0;
     paddleY1 = paddleY2 = (canvas.height - paddleHeight) / 2;
     resetBall();
+    draw()
 });
 
 document.getElementById("quitBtn").addEventListener("click", () => {
