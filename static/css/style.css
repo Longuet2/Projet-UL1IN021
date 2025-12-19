@@ -1,44 +1,48 @@
+/* Réinitialisation des marges par défaut */
 body{
   margin: 0;
   padding: 0;
 }
 
-/* Scoreboard */
+/* Barre d’affichage du score en haut de l’écran */
 #scoreboard {
     width: 100%;
-    height: 5vh;           /* 5% de la fenêtre */
+    height: 5vh;              /* Hauteur relative à la fenêtre */
     background-color: #222;
     color: white;
     text-align: center;
     font-size: 2em;
-    line-height: 5vh;      /* centrer le texte verticalement */
+    line-height: 5vh;         /* Centre verticalement le texte */
 }
 
-/* Canvas sous le scoreboard */
+/* Zone de jeu principale (canvas Pong) */
 canvas {
     display: block;
     background: #000000;
 }
 
-/* Overlay fin de partie */
+/* Overlay affiché lors de la fin de partie */
 #gameOverOverlay {
-    display: none;
+    display: none;            /* Caché par défaut */
     position: fixed;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.8);
     color: white;
     text-align: center;
     padding-top: 20%;
-    z-index: 1000;
+    z-index: 1000;            /* Passe au-dessus de tout */
 }
 
+/* Titres de l’écran de fin */
 #gameOverOverlay h1 {
     font-size: 3em;
     margin-bottom: 30px;
 }
 
+/* Boutons de fin de partie */
 #gameOverOverlay button {
     font-size: 1.5em;
     padding: 15px 40px;
@@ -51,11 +55,13 @@ canvas {
     transition: all 0.3s ease;
 }
 
+/* Effet visuel au survol des boutons */
 #gameOverOverlay button:hover {
     background-color: #ff2222;
     transform: scale(1.1);
 }
 
+/* Effet lors du clic sur un bouton */
 #gameOverOverlay button:active {
     transform: scale(0.95);
     background-color: #ff0000;
