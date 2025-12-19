@@ -1,20 +1,32 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <!-- Encodage des caractères -->
   <meta charset="utf-8">
+
+  <!-- Titre de la page affiché dans l’onglet -->
   <title>Accueil</title>
+
+  <!-- Feuille de style spécifique à la page d’accueil -->
   <link rel="stylesheet" href="{{ url_for('static', path='css/style_acceuil.css') }}">
+
+  <!-- Script JavaScript de la page (chargé après le HTML) -->
   <script src="{{ url_for('static', path='js/script_acceuil.js') }}?v=1" defer></script>
 </head>
 <body>
+  <!-- Titre principal du jeu -->
   <div class="title">
     <h1>PONG</h1>
   </div>
+
+  <!-- Message indiquant comment démarrer la partie -->
   <div class="start">
     <p>Appuie sur Entrée pour commencer le jeu.</p>
   </div>
+
+  <!-- Lien vers la page d’historique des parties -->
   <div class="history-link">
-    <a href="/historique">📊 Voir l'historique des parties</a>
+    <a href="/historique">Voir l'historique des parties</a>
   </div>
 </body>
 </html>
