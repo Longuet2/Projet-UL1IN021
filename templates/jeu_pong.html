@@ -1,28 +1,33 @@
 <!DOCTYPE html>
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <title>Pong</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    <script src="{{ url_for('static', path='js/script.js') }}?v=2" defer></script>
+  <!-- Encodage des caractères -->
+  <meta charset="utf-8">
+
+  <!-- Titre de la page affiché dans l’onglet -->
+  <title>Accueil</title>
+
+  <!-- Feuille de style spécifique à la page d’accueil -->
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style_acceuil.css') }}">
+
+  <!-- Script JavaScript de la page (chargé après le HTML) -->
+  <script src="{{ url_for('static', path='js/script_acceuil.js') }}?v=1" defer></script>
 </head>
 <body>
+  <!-- Titre principal du jeu -->
+  <div class="title">
+    <h1>PONG</h1>
+  </div>
 
-    <div id="scoreboard">
-        
-        <span id="player1Name">Joueur 1</span>: <span id="score1">0</span>
-        &nbsp;&nbsp;&nbsp;
-        <span id="player2Name">Joueur 2</span>: <span id="score2">0</span>
-        
-    </div>
+  <!-- Message indiquant comment démarrer la partie -->
+  <div class="start">
+    <p>Appuie sur Entrée pour commencer le jeu.</p>
+  </div>
 
-    <canvas id="myCanvas"></canvas>
-
-    <div id="gameOverOverlay">
-        <h1>Fin de la partie !</h1>
-        <h1> <span id="score1">0</span> | <span id="score2">0</span> </h1>
-        <button id="replayBtn">Rejouer</button>
-        <button id="quitBtn">Quitter</button>
-    </div>
-
+  <!-- Lien vers la page d’historique des parties -->
+  <div class="history-link">
+    <a href="/historique">Voir l'historique des parties</a>
+  </div>
 </body>
 </html>
+
